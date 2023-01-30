@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id "de.undercouch.download"
+    id "de.undercouch.download" version "5.3.0"
 }
 
 android {
@@ -34,7 +34,6 @@ android {
 }
 
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'com.google.android.material:material:1.8.0'
@@ -43,3 +42,19 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
+
+task downloadTestFile(type: Download) {
+    src "https://ubook-mobile.s3.amazonaws.com/temp/test.txt"
+    dest new File("test.txt")
+    tempAndMove true
+    onlyIfModified true
+    overwrite false
+    downloadTaskDir "downloads"
+}
+
+task getTestFile(dependsOn: downloadTestFile, type: Copy) {
+    from tarTree(downloadTestFile.dest)
+    into new File(buildDir, "downloads")
+}
+
+preBuild.dependsOn getTestFile
